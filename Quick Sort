@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define MAX 1000
+
+void quicksort(int A[], int lb, int ub);
+int partition(int A[], int lb, int ub);
+
+int main() {
+    int A[MAX], N, i;
+    clock_t start, end;
+    double time_taken;
+
+    printf("Enter number of elements: ");
+    scanf("%d", &N);
+
+    printf("Enter %d elements:\n", N);
+    for (i = 0; i < N; i++) {
+        scanf("%d", &A[i]);
+    }
+
+    start = clock();  // start time
+
+    quicksort(A, 0, N - 1);
+
+    end = clock();    // end time
+    time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
+
+    printf("Sorted array:\n");
+    for (i = 0; i < N; i++) {
+        printf("%d ", A[i]);
+    }
+
+    printf("\nTime taken: %f seconds\n", time_taken);
+
+    return 0;
+}
+
+void quicksort(int A[], int lb, int ub) {
+    if (lb < ub) {
+        int mid = partition(A, lb, ub);
+        quicksort(A, lb, mid - 1);
+        quicksort(A, mid + 1, ub);
+    }
+}
+
+int partition(int A[], int lb, int ub) {
+    int pivot = A[lb];
+    int start = lb;
+    int end = ub;
+    int temp;
+
+    while (start < end) {
+        while (A[start] <= pivot && start < ub) {
+            start++;
+        }
+        while (A[end] > pivot) {
+            end--;
+        }
+        if (start < end) {
+            temp = A[start];
+            A[start] = A[end];
+            A[end] = temp;
+        }
+    }
+
+    // swap pivot with A[end]
+    temp = A[lb];
+    A[lb] = A[end];
+    A[end] = temp;
+
+    return end;
+}
