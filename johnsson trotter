@@ -1,0 +1,101 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
+#define LEFT  0
+#define RIGHT 1
+
+void print_permutation(int a[], int n) {
+    for (int i = 0; i < n; i++) {
+        printf("%d ", a[i]);
+    }
+    printf("\n");
+}
+
+int get_mobile_idx(int a[], bool dir[], int n) {
+    int mobile_idx = -1;
+    int max_val = -1;
+
+    for (int i = 0; i < n; i++) {
+        if (dir[i] == LEFT && i > 0) {
+            if (a[i] > a[i - 1] && a[i] > max_val) {
+                max_val = a[i];
+                mobile_idx = i;
+            }
+        }
+        else if (dir[i] == RIGHT && i < n - 1) {
+            if (a[i] > a[i + 1] && a[i] > max_val) {
+                max_val = a[i];
+                mobile_idx = i;
+            }
+        }
+    }
+    return mobile_idx;
+}
+
+void johnson_trotter(int n) {
+    // Dynamic memory allocation for larger n
+    int *a = (int *)malloc(n * sizeof(int));
+    bool *dir = (bool *)malloc(n * sizeof(bool));
+
+    for (int i = 0; i < n; i++) {
+        a[i] = i + 1;
+        dir[i] = LEFT;
+    }
+
+    print_permutation(a, n);
+
+    while (true) {
+        int mobile_idx = get_mobile_idx(a, dir, n);
+        if (mobile_idx == -1) break;
+
+        int mobile_val = a[mobile_idx];
+        int target = (dir[mobile_idx] == LEFT) ? mobile_idx - 1 : mobile_idx + 1;
+
+        // Swap values
+        int temp_val = a[mobile_idx];
+        a[mobile_idx] = a[target];
+        a[target] = temp_val;
+
+        // Swap directions
+        bool temp_dir = dir[mobile_idx];
+        dir[mobile_idx] = dir[target];
+        dir[target] = temp_dir;
+
+        // Update directions for all elements > mobile_val
+        for (int i = 0; i < n; i++) {
+            if (a[i] > mobile_val) {
+                dir[i] = !dir[i];
+            }
+        }
+
+        print_permutation(a, n);
+    }
+
+    free(a);
+    free(dir);
+}
+
+int main() {
+    int n;
+    printf("Enter the number of elements (n): ");
+
+    if (scanf("%d", &n) != 1 || n <= 0) {
+        printf("Please enter a valid positive integer.\n");
+        return 1;
+    }
+
+    // Careful: n! grows extremely fast.
+    // n=11 already produces ~39 million lines.
+    if (n > 10) {
+        printf("Warning: n=%d will produce %d permutations. Continue? (1/0): ", n, 1);
+        int choice;
+        scanf("%d", &choice);
+        if (!choice) return 0;
+    }
+
+    printf("\nGenerating permutations for n = %d:\n", n);
+    johnson_trotter(n);
+
+    return 0;
+}
