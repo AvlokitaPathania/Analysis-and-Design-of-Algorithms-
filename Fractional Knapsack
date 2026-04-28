@@ -1,0 +1,84 @@
+#include <stdio.h>
+
+// Structure for items
+typedef struct {
+    int weight;
+    int value;
+    float ratio;
+} Item;
+
+// Function to sort items by ratio (descending)
+void sortItems(Item items[], int n) {
+    for(int i = 0; i < n - 1; i++) {
+        for(int j = 0; j < n - i - 1; j++) {
+            if(items[j].ratio < items[j + 1].ratio) {
+                Item temp = items[j];
+                items[j] = items[j + 1];
+                items[j + 1] = temp;
+            }
+        }
+    }
+}
+
+// Fractional Knapsack function
+void fractionalKnapsack(Item items[], int n, int capacity) {
+    float totalValue = 0.0;
+
+    printf("\nItems selected (possibly fractional):\n");
+
+    for(int i = 0; i < n; i++) {
+        if(capacity == 0)
+            break;
+
+        if(items[i].weight <= capacity) {
+            // Take full item
+            printf("Item %d -> Taken fully (Value = %d, Weight = %d)\n", 
+                   i + 1, items[i].value, items[i].weight);
+            capacity -= items[i].weight;
+            totalValue += items[i].value;
+        } else {
+            // Take fraction
+            float fraction = (float)capacity / items[i].weight;
+            printf("Item %d -> Taken %.2f fraction\n", i + 1, fraction);
+            totalValue += items[i].value * fraction;
+            capacity = 0;
+        }
+    }
+
+    printf("\nMaximum Profit = %.2f\n", totalValue);
+}
+
+int main() {
+    int n, capacity;
+
+    printf("Enter number of items: ");
+    scanf("%d", &n);
+
+    Item items[n];
+
+    printf("Enter weights of items:\n");
+    for(int i = 0; i < n; i++) {
+        printf("Weight of item %d: ", i + 1);
+        scanf("%d", &items[i].weight);
+    }
+
+    printf("Enter values of items:\n");
+    for(int i = 0; i < n; i++) {
+        printf("Value of item %d: ", i + 1);
+        scanf("%d", &items[i].value);
+
+        // Calculate ratio
+        items[i].ratio = (float)items[i].value / items[i].weight;
+    }
+
+    printf("Enter knapsack capacity: ");
+    scanf("%d", &capacity);
+
+    // Sort items by value/weight ratio
+    sortItems(items, n);
+
+    // Solve
+    fractionalKnapsack(items, n, capacity);
+
+    return 0;
+}
